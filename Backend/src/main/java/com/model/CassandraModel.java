@@ -61,6 +61,7 @@ public class CassandraModel {
 	public static JSONObject getDataByMonth(String month, int year,String location,String table) throws JSONException
 	{
 		
+
 		
 		System.out.println("inside data"+ month);
 		String cqlStatement="";
@@ -100,8 +101,8 @@ public class CassandraModel {
 					i++;
 			}
 			JSONObject jsondata = new JSONObject();
-			jsondata.put("Location", Locations[j]);
-			jsondata.put("Data", data[j]);
+			jsondata.put("name", Locations[j]);
+			jsondata.put("data", data[j]);
 			//al.add(jsondata);
 			result.append("series",jsondata);
 		}
