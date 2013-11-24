@@ -1,5 +1,10 @@
 package com.model;
 
+import java.util.ArrayList;
+import java.util.Map;
+
+import antlr.collections.List;
+
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
@@ -7,15 +12,24 @@ import com.datastax.driver.core.Session;
 import org.json.JSONException;
 import org.json.JSONObject;
 public class CassandraModel {
+	public final static String keyspace = "stockwatcher";
+	public final static  String serverIP = "127.0.0.1";
 	public final static String LOC_LIVINGROOM = "living room",
 							   LOC_KITCHEN = "kitchen",
 							   LOC_BATHROOM = "bathroom",
 							   LOC_ROOM1 = "room1",
 							   LOC_ROOM2 = "room2";
-							
-	public static String getResult(){
-		String serverIP = "127.0.0.1";
-		String keyspace = "stockwatcher";
+	public final static String[] months = {"january","february","march","april", "may","june","july","august","september","october","november","december"};   		
+	
+	
+	
+	
+	
+	
+	
+	
+	public static JSONObject getResult(){
+		
 	
 		Cluster cluster = Cluster.builder()
 		  .addContactPoints(serverIP)
@@ -34,6 +48,74 @@ public class CassandraModel {
 		}
 		  System.out.println(row.getString(2));
 		}
-		return result.toString();
+		return result;
+	}
+	public static JSONObject getDataByMonth(String month, int year,String location) throws JSONException
+	{
+		Cluster cluster = Cluster.builder()
+				  .addContactPoints(serverIP)
+				  .build();
+		JSONObject result = new JSONObject();
+		result.append("title", "Months x Temperature");
+		result.append("categories",getDaysOfMonth(month,year) );
+		result.append("yAxis", "Days");
+		result.append("valueSuffix","°C");
+		int month_num=0;
+		int year_num=2013;
+		String cqlStatement="";
+		if(year != -1)
+		{
+			year_num = year;
+		}
+		while(!months[month_num].equalsIgnoreCase(month))
+		{
+			month_num++;
+		}
+		month_num++;
+		
+		
+		Session session = cluster.connect(keyspace);
+	
+		
+		int data[][] = new int[4][31];
+		
+		
+		String[] Locations = {"living room","kitchen","bathroom","room1","room2"};
+		int i = 0;
+		JSONObject series = new JSONObject();
+		ArrayList al = new ArrayList();
+		for(int j=0;j<4;j++){
+			//execute query for each location
+			i=0;
+			for (Row row : session.execute(getLocationQuery(Locations[j],year_num,month_num))) {
+					data[j][i] = row.getInt(2);
+					i++;
+			}
+			JSONObject jsondata = new JSONObject();
+			jsondata.append("Location", Locations[j]);
+			jsondata.append("Data", data[i]);
+			al.add(jsondata);
+		}
+		
+		result.append("series",al);
+		return result;
+	}
+	public static String getLocationQuery(String location,int year_num,int month_num)
+	{
+		String cqlStatement = "select * "+
+				"from temperature_by_day "+
+				"where location_id = '"+location+"' "+
+				"and date > '"+year_num+"-"+month_num+"-00' and date < '"+year_num+"-"+month_num+"-31';";
+		return cqlStatement;
+	}
+	public static String[] getDaysOfMonth(String month,int year)
+	{
+		String[] result = new String[30];
+		for(int i=0;i<30;i++)
+		{
+			result[i] = (i+1)+"-"+month+"-"+year;
+		}
+		return result;
+		
 	}
 }

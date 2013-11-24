@@ -8,6 +8,9 @@
 		<title>Welcome</title>
 	</head> 
 	<body>
-		<h2>${message}</h2>
+		<form action="/request" method="post">
+		  Testquery: <input type="text" name="speech"><br>
+		  <input type="submit" value="Submit">
+		</form>
 	</body>
 </html>
