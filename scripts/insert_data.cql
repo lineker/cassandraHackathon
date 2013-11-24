@@ -1,6 +1,5 @@
 INSERT INTO temperature(location_id,event_time,temperature)
 VALUES ('kitchen','2013-01-31 07:01:00',23);
-
 INSERT INTO temperature(location_id,event_time,temperature)
 VALUES ('room1','2013-04-03 07:02:00',34);
  
