@@ -54,10 +54,46 @@ public class CassandraModel {
 		}
 		return result;
 	}
-	/*public static JSONObject getDataForYear(String month, int year,String location,String table) throws JSONException
+	public static JSONObject getDataForYear( int year,String location,String table) throws JSONException
 	{
+	
+		String cqlStatement="";
 		
-	}*/
+		Cluster cluster = Cluster.builder()
+				  .addContactPoints(serverIP)
+				  .build();
+		Session session = cluster.connect(keyspace);
+	
+		
+		int data[][] = new int[4][12];
+		
+		
+		String[] Locations;
+		if(location.isEmpty())
+			Locations = new String[]{"living room","kitchen","bathroom","room1"};
+		else
+			Locations = new String[]{location};
+		int i = 0;
+		JSONObject series = new JSONObject();
+		
+		for(int j=0;j<Locations.length;j++){
+			//execute query for each location
+			i=0;
+			System.out.println();
+			for (Row row : session.execute(getYearQuery(Locations[j], year, table))) {
+
+					data[j][i] = row.getInt(2);
+					i++;
+			}
+			JSONObject jsondata = new JSONObject();
+			jsondata.put("name", Locations[j]);
+			jsondata.put("data", data[j]);
+			//al.add(jsondata);
+			result.append("series",jsondata);
+		}
+		
+		return result;
+	}
 	public static JSONObject getDataByMonth(String month, int year,String location,String table) throws JSONException
 	{
 		
@@ -85,7 +121,7 @@ public class CassandraModel {
 		
 		String[] Locations;
 		if(location.isEmpty())
-			Locations = new String[]{"kitchen","bathroom","room1","room2"};
+			Locations = new String[]{"living room","kitchen","bathroom","room1"};
 		else
 			Locations = new String[]{location};
 		int i = 0;
@@ -120,6 +156,67 @@ public class CassandraModel {
 				"where location_id = '"+location+"' "+
 				"and date > '"+year_num+"-"+month+"-00' and date < '"+year_num+"-"+month+"-31';";
 		return cqlStatement;
+	}
+	public static String getYearQuery(String location,int year_num,String table)
+	{
+		
+		String cqlStatement = "select * "+
+				"from "+table+" "+
+				"where location_id = '"+location+"' "+
+				"and event_time > '"+year_num+"-01-01 00:00:00' and event_time < '"+(year_num+1)+"-12-31 11:59:59';";
+		System.out.println(cqlStatement);
+		return cqlStatement;
+	}
+	
+	public static JSONObject getPowerUsageForYear(int year,String location) throws JSONException
+	{	
+		int year_num=2013;
+		if(year != -1)
+			{
+				year_num = year;
+			}
+		 result = new JSONObject();
+		 
+		 JSONObject xAxis = new JSONObject();
+			
+		 xAxis.put("title", "Power (Watts)");
+		 xAxis.put("categories",months);
+		 if(location.isEmpty())
+			 result.put("title", "Usage for the year of "+year_num);
+		 else
+			 result.put("title", "Usage for the year of "+year_num+" in "+location);
+		 
+		 
+		 result.put("xAxis", xAxis);
+		 result.put("yAxis", (new JSONObject()).put("title", "Energy(W)"));
+			
+		 result.put("valueSuffix","W");
+		 return getDataForYear(year_num, location, TABLE_CONSUMPTION_MONTH);
+	}
+	public static JSONObject getTempForYear(int year,String location) throws JSONException
+	{	
+		int year_num=2013;
+		if(year != -1)
+			{
+				year_num = year;
+			}
+		 result = new JSONObject();
+		 
+		 JSONObject xAxis = new JSONObject();
+			
+		 xAxis.put("title", "Power (Watts)");
+		 xAxis.put("categories",months);
+		 if(location.isEmpty())
+			 result.put("title", "Usage for the year of "+year_num);
+		 else
+			 result.put("title", "Usage for the year of "+year_num+" in "+location);
+		 
+		 
+		 result.put("xAxis", xAxis);
+		 result.put("yAxis", (new JSONObject()).put("title", "Temperature(C)"));
+			
+		 result.put("valueSuffix","C");
+		 return getDataForYear(year_num, location, TABLE_TEMP_MONTH);
 	}
 	public static JSONObject getPowerUsageForMonth(String month, int year,String location) throws JSONException
 	{	
