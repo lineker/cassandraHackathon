@@ -116,8 +116,8 @@ public class HomeController {
 		else
 		{
 			//Sentence structure "show me consumption IN location(kitchen,livingroom,etc)
-			 String location="";
-			 String month = "";
+			 location="";
+			 month = "";
 			 monthCheck = false;
 			 yearCheck = false;
 			 powerCheck = false;
