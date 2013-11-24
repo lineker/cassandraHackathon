@@ -62,10 +62,16 @@ public class CassandraModel {
 				  .addContactPoints(serverIP)
 				  .build();
 		JSONObject result = new JSONObject();
-		result.append("title", "Months x Temperature");
-		result.append("categories",getDaysOfMonth(month,year_num) );
-		result.append("yAxis", "Days");
-		result.append("valueSuffix","Celsius");
+		JSONObject xAxis = new JSONObject();
+		xAxis.put("title", "Temperature (Celsius)");
+		xAxis.put("categories",getDaysOfMonth(month,year_num));
+		result.put("title", "Months x Temperature");
+		result.put("xAxis", xAxis);
+		
+		result.put("yAxis", (new JSONObject()).put("title", "Months"));
+		
+		result.put("valueSuffix","Celsius");
+
 		int month_num=0;
 		
 		String cqlStatement="";
@@ -89,6 +95,7 @@ public class CassandraModel {
 		ArrayList al = new ArrayList();
 		for(int j=0;j<4;j++){
 			//execute query for each location
+			i=0;
 			System.out.println(getLocationQuery(Locations[j],year_num,month_num));
 			for (Row row : session.execute(getLocationQuery(Locations[j],year_num,month_num))) {
 					System.out.println(row.getString(1)+row.getString(1)+row.getInt(2));
@@ -96,12 +103,13 @@ public class CassandraModel {
 					i++;
 			}
 			JSONObject jsondata = new JSONObject();
-			jsondata.append("Location", Locations[j]);
-			jsondata.append("Data", data[j]);
-			al.add(jsondata);
+			jsondata.put("Location", Locations[j]);
+			jsondata.put("Data", data[j]);
+			//al.add(jsondata);
+			result.append("series",jsondata);
 		}
 		
-		result.append("series",al);
+		//result.append("series",al);
 		return result;
 	}
 	public static String getLocationQuery(String location,int year_num,int month_num)
