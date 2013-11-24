@@ -65,7 +65,7 @@ public class HomeController {
 	
 	public boolean parseInput(String speech,HttpSession session) {
 		String data[];
-		
+		speech = speech.toLowerCase();
 		if(speech.toLowerCase().matches("(.*)more(.*)"))
 		{
 			if(!((Boolean) session.getAttribute("properRequest")).booleanValue())
@@ -112,7 +112,7 @@ public class HomeController {
 			 yearCheck = false;
 			 powerCheck = false;
 			 tempCheck = false;
-			 details = false;
+			 this.details = false;
 			data = speech.toLowerCase().split("for");
 			if(data.length != 2)
 				return false;

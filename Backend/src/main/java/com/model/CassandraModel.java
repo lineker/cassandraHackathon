@@ -169,7 +169,7 @@ public class CassandraModel {
 		
 		result.put("yAxis", (new JSONObject()).put("title", "Months"));
 		
-		result.put("valueSuffix","°C");
+		result.put("valueSuffix","Celsius");
 		System.out.println(month);
 		return getDataByMonth(month, year_num,location,TABLE_TEMP);
 	}
