@@ -65,7 +65,7 @@ public class CassandraModel {
 		result.append("title", "Months x Temperature");
 		result.append("categories",getDaysOfMonth(month,year_num) );
 		result.append("yAxis", "Days");
-		result.append("valueSuffix","°C");
+		result.append("valueSuffix","Celsius");
 		int month_num=0;
 		
 		String cqlStatement="";
