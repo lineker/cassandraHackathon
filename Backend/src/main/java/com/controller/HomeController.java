@@ -54,6 +54,16 @@ public class HomeController {
 				model.addAttribute("result",CassandraModel.getPowerUsageForMonth(month,year,location).toString());
 			else if(tempCheck && monthCheck)
 				model.addAttribute("result",CassandraModel.getTemperatureForMonth(month,year,location).toString());
+			else if(powerCheck && yearCheck)
+			{
+				model.addAttribute("result",CassandraModel.getPowerUsageForYear(year,location).toString());
+			}
+			else if(tempCheck && yearCheck)
+			{
+				model.addAttribute("result",CassandraModel.getTempForYear(year,location).toString());
+			}
+			else
+				model.addAttribute("result","[]");
 		}
 		else
 		{
@@ -114,6 +124,7 @@ public class HomeController {
 			 tempCheck = false;
 			 this.details = false;
 			data = speech.toLowerCase().split("for");
+			
 			if(data.length != 2)
 				return false;
 			
@@ -144,7 +155,6 @@ public class HomeController {
 			{
 				p = Pattern.compile("(.*)("+CassandraModel.months[i]+")(.*)");
 				m = p.matcher(speech);
-				System.out.println("checking for month in "+data[1]);
 				if(m.matches())
 				{
 					this.month = m.group(2);
