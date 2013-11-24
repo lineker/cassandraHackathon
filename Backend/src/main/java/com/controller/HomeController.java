@@ -30,9 +30,12 @@ public class HomeController {
 	 */
 	public String location="";
 	public String month = "";
+	boolean monthCheck = false;
+	boolean yearCheck = false;
 	boolean powerCheck = false;
 	boolean tempCheck = false;
 	boolean details = false;
+	boolean properRequest = false;
 	int year= -1;
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String home(Model model, HttpSession session) {
@@ -47,8 +50,10 @@ public class HomeController {
 	    session.setAttribute("previousRequest", speech);
 		if(parseInput(speech,session))
 		{
-			model.addAttribute("result",CassandraModel.getDataByMonth(month,year,location).toString());
-			System.out.println(location);
+			if(powerCheck && monthCheck)
+				model.addAttribute("result",CassandraModel.getPowerUsageForMonth(month,year,location).toString());
+			else if(tempCheck && monthCheck)
+				model.addAttribute("result",CassandraModel.getTemperatureForMonth(month,year,location).toString());
 		}
 		else
 		{
@@ -61,7 +66,7 @@ public class HomeController {
 	public boolean parseInput(String speech,HttpSession session) {
 		String data[];
 		
-		if(speech.toLowerCase().matches("(.*)details(.*)"))
+		if(speech.toLowerCase().matches("(.*)more(.*)"))
 		{
 			if(!((Boolean) session.getAttribute("properRequest")).booleanValue())
 			{ return false;}
@@ -83,12 +88,17 @@ public class HomeController {
 			{
 				location = CassandraModel.LOC_BATHROOM;
 			}
+			else if(speech.matches("(.*)kitchen(.*)"))
+			{
+				location = CassandraModel.LOC_KITCHEN;
+			}
 			else
 			{
 				return false;
 			}
 			
 			this.powerCheck = ((Boolean) session.getAttribute("powerCheck")).booleanValue();
+			this.tempCheck = ((Boolean) session.getAttribute("powerCheck")).booleanValue();
 			this.month = (String)session.getAttribute("month");
 			this.year = ((Integer)session.getAttribute("year")).intValue();
 			
@@ -96,6 +106,13 @@ public class HomeController {
 		else
 		{
 			//Sentence structure "show me consumption IN location(kitchen,livingroom,etc)
+			 String location="";
+			 String month = "";
+			 monthCheck = false;
+			 yearCheck = false;
+			 powerCheck = false;
+			 tempCheck = false;
+			 details = false;
 			data = speech.toLowerCase().split("for");
 			if(data.length != 2)
 				return false;
@@ -121,16 +138,23 @@ public class HomeController {
 			if(m.matches())
 			{
 				this.year = Integer.parseInt(m.group(2));
+				yearCheck = true;
 			}
-			p = Pattern.compile("(.*)(january)(.*)|(.*)(february)(.*)|(.*)(march)(.*)|(.*)(april)(.*)|"+
-								"(.*)(may)(.*)|(.*)(june)(.*)|(.*)(july)(.*)|(.*)(august)(.*)|(.*)(september)(.*)|(.*)(october)(.*)|(.*)(december)(.*)");
-			m = p.matcher(data[1]);
-			if(m.matches())
+			for(int i=0;i<12;i++)
 			{
-				this.month = m.group(2);
+				p = Pattern.compile("(.*)("+CassandraModel.months[i]+")(.*)");
+				m = p.matcher(speech);
+				System.out.println("checking for month in "+data[1]);
+				if(m.matches())
+				{
+					this.month = m.group(2);
+					monthCheck = true;
+					System.out.println("match for "+this.month);;
+					break;
+				}
 			}
-			
-			session.setAttribute("properRequest", "true");
+			properRequest = true;
+			session.setAttribute("properRequest", true);
 			session.setAttribute("powerCheck", this.powerCheck);
 			session.setAttribute("month", this.month);
 			session.setAttribute("year", this.year);
