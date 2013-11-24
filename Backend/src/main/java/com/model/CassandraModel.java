@@ -63,7 +63,7 @@ public class CassandraModel {
 				  .build();
 		JSONObject result = new JSONObject();
 		result.append("title", "Months x Temperature");
-		result.append("categories",getDaysOfMonth(month,year) );
+		result.append("categories",getDaysOfMonth(month,year_num) );
 		result.append("yAxis", "Days");
 		result.append("valueSuffix","°C");
 		int month_num=0;
