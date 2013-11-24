@@ -103,8 +103,8 @@ public class CassandraModel {
 					i++;
 			}
 			JSONObject jsondata = new JSONObject();
-			jsondata.put("Location", Locations[j]);
-			jsondata.put("Data", data[j]);
+			jsondata.put("name", Locations[j]);
+			jsondata.put("data", data[j]);
 			//al.add(jsondata);
 			result.append("series",jsondata);
 		}
