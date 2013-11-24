@@ -12,7 +12,7 @@ import com.datastax.driver.core.Session;
 import org.json.JSONException;
 import org.json.JSONObject;
 public class CassandraModel {
-	public final static String keyspace = "stockwatcher";
+	public final static String keyspace = "homeewatcher";
 	public final static  String serverIP = "127.0.0.1";
 	public final static String LOC_LIVINGROOM = "living room",
 							   LOC_KITCHEN = "kitchen",
@@ -52,6 +52,12 @@ public class CassandraModel {
 	}
 	public static JSONObject getDataByMonth(String month, int year,String location) throws JSONException
 	{
+		int year_num=2013;
+		if(year != -1)
+		{
+			year_num = year;
+		}
+		
 		Cluster cluster = Cluster.builder()
 				  .addContactPoints(serverIP)
 				  .build();
@@ -61,12 +67,9 @@ public class CassandraModel {
 		result.append("yAxis", "Days");
 		result.append("valueSuffix","°C");
 		int month_num=0;
-		int year_num=2013;
+		
 		String cqlStatement="";
-		if(year != -1)
-		{
-			year_num = year;
-		}
+		
 		while(!months[month_num].equalsIgnoreCase(month))
 		{
 			month_num++;
@@ -86,14 +89,15 @@ public class CassandraModel {
 		ArrayList al = new ArrayList();
 		for(int j=0;j<4;j++){
 			//execute query for each location
-			i=0;
+			System.out.println(getLocationQuery(Locations[j],year_num,month_num));
 			for (Row row : session.execute(getLocationQuery(Locations[j],year_num,month_num))) {
+					System.out.println(row.getString(1)+row.getString(1)+row.getInt(2));
 					data[j][i] = row.getInt(2);
 					i++;
 			}
 			JSONObject jsondata = new JSONObject();
 			jsondata.append("Location", Locations[j]);
-			jsondata.append("Data", data[i]);
+			jsondata.append("Data", data[j]);
 			al.add(jsondata);
 		}
 		
@@ -102,10 +106,14 @@ public class CassandraModel {
 	}
 	public static String getLocationQuery(String location,int year_num,int month_num)
 	{
+		String month;
+		if(month_num<10)
+			month="0"+month_num; 
+		else month=""+month_num;
 		String cqlStatement = "select * "+
 				"from temperature_by_day "+
 				"where location_id = '"+location+"' "+
-				"and date > '"+year_num+"-"+month_num+"-00' and date < '"+year_num+"-"+month_num+"-31';";
+				"and date > '"+year_num+"-"+month+"-00' and date < '"+year_num+"-"+month_num+"-31';";
 		return cqlStatement;
 	}
 	public static String[] getDaysOfMonth(String month,int year)
