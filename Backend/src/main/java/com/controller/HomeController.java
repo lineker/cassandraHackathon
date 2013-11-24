@@ -122,7 +122,7 @@ public class HomeController {
 			 yearCheck = false;
 			 powerCheck = false;
 			 tempCheck = false;
-			 details = false;
+			 this.details = false;
 			data = speech.toLowerCase().split("for");
 			
 			if(data.length != 2)
