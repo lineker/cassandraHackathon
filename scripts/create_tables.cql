@@ -1,6 +1,7 @@
 
 
-/* A range query
+/* 
+A range query
 SELECT temperature
 FROM temperature
 WHERE location_id='room1'
@@ -23,11 +24,11 @@ Now when we insert data, the key will group all weather
 data for a single day on a single row.
 */
 
-/*
+/* show temp for jan 2013
 SELECT *
 FROM temperature_by_day
-WHERE weatherstation_id='1234ABCD'
-AND date='2013-04-03';  AND date in ('xxx', 'ssss', 'ssss')
+WHERE weatherstation_id='room1'
+AND date in ('2013-01-01', '2013-01-02', '2013-01-03', '2013-01-04')
 */
 
 CREATE TABLE temperature_by_day (
@@ -37,8 +38,16 @@ CREATE TABLE temperature_by_day (
    PRIMARY KEY (location_id,date)
 );
 
+CREATE TABLE temperature_by_month (
+   location_id text,
+   event_time timestamp,
+   temperature text,
+   PRIMARY KEY (location_id,event_time)
+);
 
-/*keep record of the last temperatures using TTL*/
+/*
+keep record of the last temperatures using TTL
+*/
 CREATE TABLE latest_temperatures (
    location_id text,
    event_time timestamp,
@@ -60,6 +69,13 @@ CREATE TABLE energy_consumption_by_day (
    date text,
    energy_consumption text,
    PRIMARY KEY (location_id,date)
+);
+
+CREATE TABLE energy_consumption_by_month (
+   location_id text,
+   event_time timestamp,
+   energy_consumption text,
+   PRIMARY KEY (location_id,event_time)
 );
 
 CREATE TABLE latest_energy_consumption (
